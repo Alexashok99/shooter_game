@@ -4,3 +4,6 @@ version = "0.1.0"
 dependencies = [
     "pygame-ce",
 ]
+
+[tool.setuptools.packages.find]
+exclude = ["img*", "audio*"]
