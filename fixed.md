@@ -99,3 +99,38 @@ This document outlines the grenade, explosion, multi-enemy, and gameplay integra
 * **Added tile-size configuration:** Introduced `TILE_SIZE = 40` and used it to define the grenade damage radius.
 * **Added grenade-aware constructors:** Updated player and enemy creation to provide grenade ammunition values (`5` for the player and `0` for enemies).
 * **Improved sprite initialization:** Used `super().__init__(*groups)` in the new sprite classes to support optional Pygame sprite-group assignment.
+
+---
+
+# 04 Changelog & Code Fixes Report
+
+This document outlines the item pickup system, player HUD improvements, and cross-module dependency fixes added to the Pygame project.
+
+## 1. Item Pickup System
+* **Added `ItemBox` sprite:** Implemented a reusable item-box class for collectible health, ammo, and grenade supplies.
+* **Added pickup collision detection:** Item boxes now detect collision with the player and remove themselves after collection.
+* **Added health pickup:** Health boxes restore 25 health points without allowing the player's health to exceed `max_health`.
+* **Added ammo pickup:** Ammo boxes add 15 bullets to the player's ammunition count.
+* **Added grenade pickup:** Grenade boxes add 3 grenades to the player's inventory.
+
+## 2. Health Bar and Player HUD
+* **Added `HealthBar` class:** Created a reusable health-bar component that displays the current health ratio using background, damage, and remaining-health colors.
+* **Added player statistics display:** The game now displays the player's health, ammo, and grenade count on screen.
+* **Added grenade inventory icons:** Remaining grenades are represented visually with grenade icons in the HUD.
+
+## 3. Item Assets and Sprite Group Integration
+* **Added item images:** Loaded health-box, ammo-box, and grenade-box images from the icon asset folder.
+* **Added item image mapping:** Stored item images in an `item_boxes` dictionary keyed by item type.
+* **Added item-box group:** Created `item_boxes_group` and integrated item updates and drawing into the main game loop.
+* **Added temporary level pickups:** Placed health, ammo, and grenade boxes at separate positions in the level for testing.
+
+## 4. Cross-Module Dependency Fixes
+* **Removed undefined global dependencies:** Bullet and grenade classes no longer rely on objects created in `main.py`.
+* **Updated bullet constructor:** Bullet images are passed explicitly when bullets are created.
+* **Updated bullet updates:** The player and complete enemy group are passed to bullet updates, allowing collision detection with multiple enemies.
+* **Updated grenade constructor:** Grenade images are passed explicitly when grenades are created.
+* **Updated grenade updates:** The player, enemy group, and explosion group are passed to grenade updates for damage and explosion handling.
+
+## 5. Validation and Environment
+* **Resolved missing dependency:** Installed `pygame-ce` in the project's virtual environment as declared in `pyproject.toml`.
+* **Verified module compilation:** Confirmed that `main.py`, `bullet.py`, `grenade.py`, and `soldiers.py` compile successfully after the API changes.
