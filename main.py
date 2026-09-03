@@ -97,11 +97,11 @@ item_boxes_group.add(item_box2)
 item_box3: ItemBox = ItemBox("Grenade", 600, 260, grenade_box_img, item_boxes)
 item_boxes_group.add(item_box3)
 
-player: Soldier = Soldier("player", 200, 200, 3, 5, 30, 5)
+player: Soldier = Soldier("player", 200, 200, 1.65, 5, 30, 5)
 health_bar: HealthBar = HealthBar(10, 10, player.health, player.max_health) 
-enemy: Soldier = Soldier("enemy", 500, 250, 3, 5, 20, 0)
+enemy: Soldier = Soldier("enemy", 500, 200, 1.65, 2, 20, 0)
 enemy_group.add(enemy)
-enemy2: Soldier = Soldier("enemy", 700, 250, 3, 5, 20, 0)
+enemy2: Soldier = Soldier("enemy", 700, 200, 1.65, 3, 20, 0)
 enemy_group.add(enemy2)
 
 running: bool = True
@@ -121,6 +121,7 @@ while running:
     player.update()
     player.draw(screen)
     for enemy in enemy_group:
+        enemy.ai(screen, player, bullet_img, bullet_group)
         enemy.draw(screen)
         enemy.update()
 

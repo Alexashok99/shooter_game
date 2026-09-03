@@ -134,3 +134,31 @@ This document outlines the item pickup system, player HUD improvements, and cros
 ## 5. Validation and Environment
 * **Resolved missing dependency:** Installed `pygame-ce` in the project's virtual environment as declared in `pyproject.toml`.
 * **Verified module compilation:** Confirmed that `main.py`, `bullet.py`, `grenade.py`, and `soldiers.py` compile successfully after the API changes.
+
+---
+
+# 05 Changelog & Code Fixes Report
+
+This document outlines the enemy AI, vision-based combat, patrol behavior, and related gameplay fixes added to the Pygame project.
+
+## 1. Enemy AI System
+* **Added AI behavior:** Extended the `Soldier` class with an `ai()` method for controlling enemy movement and combat.
+* **Added enemy patrol movement:** Enemies automatically move in their current direction and reverse direction after traveling one tile-size interval.
+* **Added random idle behavior:** Enemies occasionally stop and idle for a short period, creating less predictable movement.
+* **Added AI state tracking:** Introduced movement, vision, idle, and idle-counter variables to manage enemy behavior across frames.
+
+## 2. Enemy Vision and Combat
+* **Added vision rectangle:** Each enemy now has a forward-facing rectangular detection area for locating the player.
+* **Added player detection:** Enemies stop moving and switch to the Idle animation when the player enters their vision area.
+* **Added enemy shooting:** Detected players are attacked using the existing bullet system and shooting cooldown.
+* **Fixed AI shooting error:** Corrected the invalid `player.bullet_group` reference by using the `bullet_group` passed directly to `ai()`.
+
+## 3. Soldier Rendering Improvements
+* **Added health indicators:** Soldiers now display a red health bar above their sprite while being drawn.
+* **Updated character scaling:** Player and enemy instances use a scale of `1.65` for larger on-screen character sprites.
+* **Added different enemy speeds:** The two enemies use separate movement speeds, making their patrol behavior distinct.
+
+## 4. Main Loop Integration
+* **Integrated enemy AI updates:** The main game loop now calls `enemy.ai(screen, player, bullet_img, bullet_group)` for every enemy.
+* **Preserved multi-enemy support:** All enemies continue to be updated, drawn, and included in bullet collision detection through `enemy_group`.
+* **Kept debugging output disabled:** The vision rectangle remains available for debugging but is commented out during normal gameplay.

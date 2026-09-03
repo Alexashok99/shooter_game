@@ -1,4 +1,4 @@
-import os
+import os, random
 import pygame
 from typing import Any
 
@@ -40,7 +40,11 @@ class Soldier(pygame.sprite.Sprite):
         self.frame_index: int = 0
         self.action: int = 0
         self.update_time: float = float(pygame.time.get_ticks())
-
+        # create ai specific variables
+        self.move_counter: int = 0
+        self.vision: pygame.Rect = pygame.Rect(0, 0, 150, 20)
+        self.idling: bool = False
+        self.idling_counter: int = 0
         # load all images for the player
         animation_type: list[str] = ["Idle", "Run", "Jump", "Death"]
         for animation in animation_type:
@@ -116,7 +120,7 @@ class Soldier(pygame.sprite.Sprite):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20
             bullet: Bullet = Bullet(
-                self.rect.centerx + int(0.6 * self.rect.size[0] * self.direction),
+                self.rect.centerx + int(0.75 * self.rect.size[0] * self.direction),
                 self.rect.centery,
                 self.direction,
                 bullet_image,
@@ -124,6 +128,42 @@ class Soldier(pygame.sprite.Sprite):
             bullet_group.add(bullet)
             # reduse the ammo
             self.ammo -= 1
+
+    def ai(self, screen: pygame.surface.Surface, player: Any, bullet_img: pygame.surface.Surface, bullet_group: pygame.sprite.Group) -> None:
+        if self.alives and player.alives:
+            if self.idling == False and random.randint(1, 200) == 1:
+                self.update_action(0)  # 0: Idle
+                self.idling = True
+                self.idling_counter = 50
+            # check if the ai in near the player
+            if self.vision.colliderect(player.rect):
+                # stop running and face the player
+                self.update_action(0)  # 0: Idle
+                # shoot
+                self.shoot(bullet_group, bullet_img)
+            else:
+                if self.idling is False:
+                    if self.direction == 1:
+                        ai_moving_right: bool = True
+                    else:
+                        ai_moving_right: bool = False
+                    ai_moving_left: bool = not ai_moving_right
+                    self.move(ai_moving_left, ai_moving_right)
+                    self.update_action(1)  # 1: Run
+                    self.move_counter += 1
+                    # update ai vision as the enemy moves
+                    self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+                    # pygame.draw.rect(
+                        # screen, RED, self.vision)  # Draw the vision rectangle for debugging
+                    # check if the ai has hit the wall or end of the platform
+
+                    if self.move_counter > TILE_SIZE:
+                        self.direction *= -1
+                        self.move_counter *= -1
+                else:
+                    self.idling_counter -= 1
+                    if self.idling_counter <= 0:
+                        self.idling = False
 
     def update_animation(self) -> None:
         ANIMATION_COOLDOWN: float = 100
