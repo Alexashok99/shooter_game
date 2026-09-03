@@ -68,3 +68,34 @@ This document outlines the enhancements, new features, and structural improvemen
 ## 9. Enemy Sprite Implementation
 * **Full enemy support:** Enemy sprite now instantiated with ammo parameter (`ammo: 20`) and fully integrated into game loop with health tracking and collision detection.
 * **Bidirectional combat:** Both player and enemy can be damaged by bullets and display health values in console.
+
+---
+
+# 03 Changelog & Code Fixes Report
+
+This document outlines the grenade, explosion, multi-enemy, and gameplay integration enhancements added to the Pygame project.
+
+## 1. Grenade System
+* **Added grenade state tracking:** Added `grenade` and `grenade_thrown` boolean variables to manage grenade input and prevent repeated throws while the key is held.
+* **Added grenade inventory:** Extended `Soldier` with a `grenade` parameter and instance variable so each character can track available grenades.
+* **Implemented `Grenade` sprite:** Added a grenade class with directional movement, gravity, floor bouncing, wall collision, decreasing horizontal speed, and a countdown timer.
+* **Added grenade input:** Integrated the `Q` key with `KEYDOWN` and `KEYUP` handling to throw grenades and reset the throw state.
+
+## 2. Explosion Effects and Area Damage
+* **Added explosion image loading:** Loaded five explosion frames from `img/explosion/exp1.png` through `exp5.png` and scaled them according to the requested size.
+* **Implemented `Explosion` sprite:** Added frame-based explosion animation that removes itself after the final frame.
+* **Added area damage:** When a grenade timer expires, an explosion is created and nearby players or enemies lose 50 health.
+
+## 3. Sprite Group and Game Loop Integration
+* **Added sprite groups:** Created `grenade_group` and `explosion_group` alongside the existing enemy and bullet groups.
+* **Integrated updates and drawing:** The main loop now updates and draws grenades and explosions every frame.
+* **Added grenade and explosion assets:** Loaded `grenade.png` and used the explosion asset sequence with alpha transparency for rendering.
+
+## 4. Multiple Enemy Support
+* **Added a second enemy:** Instantiated `enemy2` at a separate position and added it to `enemy_group`.
+* **Expanded enemy processing:** The game loop iterates over all enemies so each enemy is updated and drawn consistently.
+
+## 5. Gameplay and Code Improvements
+* **Added tile-size configuration:** Introduced `TILE_SIZE = 40` and used it to define the grenade damage radius.
+* **Added grenade-aware constructors:** Updated player and enemy creation to provide grenade ammunition values (`5` for the player and `0` for enemies).
+* **Improved sprite initialization:** Used `super().__init__(*groups)` in the new sprite classes to support optional Pygame sprite-group assignment.
