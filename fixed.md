@@ -230,3 +230,36 @@ This document outlines the camera scrolling, parallax background, and long-level
 * **Expanded playable space:** The game can now display levels wider than the 800-pixel window without forcing the player to remain at the left edge.
 * **Improved exploration:** Players can travel through the full CSV-defined level while enemies, pickups, exits, and obstacles remain visible in the correct world positions.
 * **Prepared the architecture for MVC:** Camera and rendering state are now clearer boundaries for the planned View and Controller separation.
+
+---
+
+# 08 Changelog & Code Fixes Report
+
+This document outlines the menu controls, level progression, reset handling, and game-state improvements added after the 07 revision.
+
+## 1. Start and Exit Menu
+* **Added button support:** Introduced a reusable `Button` class for image-based clickable controls.
+* **Added start button:** Players can begin the game from a dedicated start menu instead of entering gameplay immediately.
+* **Added exit button:** Players can close the game through the menu without needing to use the keyboard.
+* **Added start state tracking:** The `start_game` flag separates menu rendering from active gameplay updates.
+
+## 2. Restart and Failure Handling
+* **Added restart button:** When the player dies, a restart control is displayed so the current level can be loaded again.
+* **Added level reset helper:** `reset_level()` clears enemies, projectiles, explosions, pickups, environmental sprites, and exits before rebuilding the level.
+* **Reset camera state:** Restarting or changing levels resets `bg_scroll` so the background begins at the correct position.
+* **Stopped dead-player movement:** The game loop only processes player actions and movement while the player remains alive.
+
+## 3. Multi-Level Progression
+* **Added maximum level configuration:** `MAX_LEVELS` defines the number of CSV levels available in the game.
+* **Added level completion handling:** Reaching a level exit returns a completion state from player movement and triggers the next level load.
+* **Added level data reload:** The next `levelN_data.csv` file is read into a fresh world grid before creating the new `World` instance.
+* **Preserved level-specific objects:** Each level rebuilds its player, enemies, item boxes, exits, decorations, water, and collision tiles from its own CSV data.
+
+## 4. Main Loop State Management
+* **Separated menu and gameplay loops:** Menu buttons are processed while the game is not started, while movement, combat, collision, and rendering run only during active gameplay.
+* **Added restart-safe sprite groups:** Group cleanup prevents objects from a previous level or failed attempt from remaining in the new level.
+* **Kept keyboard controls active:** Existing movement, shooting, grenade, jump, and escape controls continue to work alongside the new mouse-driven buttons.
+
+## 5. Gameplay Result
+* **Improved player flow:** The project now has a clear start, play, failure, restart, and level-transition lifecycle.
+* **Prepared future MVC work:** Menu state and level lifecycle responsibilities are now identifiable controller concerns, while button and HUD rendering can later move into the View layer.
