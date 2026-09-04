@@ -162,3 +162,38 @@ This document outlines the enemy AI, vision-based combat, patrol behavior, and r
 * **Integrated enemy AI updates:** The main game loop now calls `enemy.ai(screen, player, bullet_img, bullet_group)` for every enemy.
 * **Preserved multi-enemy support:** All enemies continue to be updated, drawn, and included in bullet collision detection through `enemy_group`.
 * **Kept debugging output disabled:** The vision rectangle remains available for debugging but is commented out during normal gameplay.
+
+---
+
+# 06 Changelog & Code Fixes Report
+
+This document outlines the level loading, world collision, dynamic object placement, and multi-target combat improvements added after the 05 revision. It also records the planned MVC refactor for a future project phase.
+
+## 1. Data-Driven Level Loading
+* **Added CSV level support:** Level layouts are now loaded from `level1_data.csv`, with the selected level controlled by the `level` variable.
+* **Created a default world grid:** The game initializes a `ROWS` by `COLS` tile grid with empty values before importing the CSV data.
+* **Added tile validation:** CSV values are converted to integers and only values within the configured world dimensions are written to the level grid.
+* **Added missing-player validation:** `World.process_data()` raises a `ValueError` when the level does not contain a player start tile.
+
+## 2. World and Tile Improvements
+* **Added the `World` class:** Level processing and world rendering are grouped into reusable `process_data()` and `draw()` methods.
+* **Added tile image loading:** All configured tile images are loaded, scaled to `TILE_SIZE`, and stored in `img_list`.
+* **Added solid tile collision:** Soldiers now check movement against obstacle rectangles from the loaded level instead of relying on a fixed floor position.
+* **Added grenade world collision:** Grenades reverse direction when hitting a wall and stop vertical movement when landing on level geometry.
+* **Added bullet wall collision:** Bullets are removed when they hit an obstacle tile, preventing them from passing through level structures.
+
+## 3. Dynamic Level Objects
+* **Added tile-based entity placement:** Player, enemies, item boxes, decorations, water, and exits are created from their corresponding tile IDs in the CSV level.
+* **Added world sprite groups:** `water_group`, `decorator_group`, and `exit_group` are updated and drawn with the rest of the game objects.
+* **Improved item-box construction:** Item boxes now use the shared item image mapping while being positioned directly from level data.
+
+## 4. Multi-Enemy Combat Fix
+* **Fixed bullet targeting:** Bullet collision now checks every living enemy in `enemy_group`, rather than checking only one global enemy instance.
+* **Added single-hit bullet behavior:** A bullet is removed after damaging its first enemy, preventing one bullet from damaging multiple targets in the same frame.
+* **Preserved player combat:** Enemy bullets can still damage the player, while player bullets can damage any enemy loaded from the level.
+
+## 5. Planned MVC Refactor
+* **Planned model layer:** Game state such as the player, enemies, level data, inventory, health, and collision rules will be moved into model classes.
+* **Planned view layer:** Rendering, HUD elements, animations, and sprite drawing will be separated from gameplay state and rules.
+* **Planned controller layer:** Input handling, enemy AI, game-loop coordination, level transitions, and model updates will be handled by controller classes.
+* **Refactor goal:** The MVC structure will reduce the current dependency on global variables and make levels, gameplay systems, and future features easier to test and maintain.
