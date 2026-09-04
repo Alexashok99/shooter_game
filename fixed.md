@@ -197,3 +197,36 @@ This document outlines the level loading, world collision, dynamic object placem
 * **Planned view layer:** Rendering, HUD elements, animations, and sprite drawing will be separated from gameplay state and rules.
 * **Planned controller layer:** Input handling, enemy AI, game-loop coordination, level transitions, and model updates will be handled by controller classes.
 * **Refactor goal:** The MVC structure will reduce the current dependency on global variables and make levels, gameplay systems, and future features easier to test and maintain.
+
+---
+
+# 07 Changelog & Code Fixes Report
+
+This document outlines the camera scrolling, parallax background, and long-level gameplay improvements added after the 06 revision.
+
+## 1. Camera Scrolling System
+* **Added scroll threshold:** Introduced `SCROLL_THRESH` to keep the player near a stable horizontal screen position while exploring the level.
+* **Added screen scroll state:** Added `screen_scroll` to communicate the camera movement between the player, world, sprites, bullets, grenades, and effects.
+* **Updated player movement:** Player movement now returns the horizontal scroll amount so the game loop can move the world when the player reaches the camera threshold.
+* **Added level boundary support:** The world uses its loaded level length to prevent camera scrolling beyond the playable map area.
+
+## 2. Parallax Background
+* **Added background assets:** Loaded sky, mountain, and pine-tree images for a layered game background.
+* **Implemented parallax movement:** Background layers move at different speeds based on `bg_scroll`, creating depth while the player travels through the level.
+* **Integrated background rendering:** The scrolling background is drawn before the tile map and gameplay sprites so the scene remains visually organized.
+
+## 3. Scroll-Aware Game Objects
+* **Updated tile rendering:** World obstacle rectangles now shift horizontally with the camera.
+* **Updated environment sprites:** Water, decorations, and exits now apply `screen_scroll` during their update cycle.
+* **Updated gameplay sprites:** Items, bullets, and explosions follow the camera so their positions remain aligned with the level during scrolling.
+* **Preserved collision behavior:** Scrolling changes only the screen position of objects and does not remove their existing collision checks.
+
+## 4. Main Loop Integration
+* **Connected camera updates:** The main loop applies the scroll returned by player movement and updates `bg_scroll` for the parallax layers.
+* **Kept HUD screen-fixed:** Health, ammunition, grenade counts, and grenade icons remain attached to the screen instead of moving with the world.
+* **Maintained sprite update order:** World drawing, actor updates, projectile updates, effects, pickups, and input handling continue to run through the main game loop.
+
+## 5. Gameplay Result
+* **Expanded playable space:** The game can now display levels wider than the 800-pixel window without forcing the player to remain at the left edge.
+* **Improved exploration:** Players can travel through the full CSV-defined level while enemies, pickups, exits, and obstacles remain visible in the correct world positions.
+* **Prepared the architecture for MVC:** Camera and rendering state are now clearer boundaries for the planned View and Controller separation.
