@@ -1,49 +1,67 @@
 # Shooter Game
 
-A lightweight 2D shooter-game prototype built with Python and [pygame-ce](https://pyga.me/). The current prototype displays a player and an enemy, supports player movement and jumping, and includes animated sprite frames.
+A side-scrolling action shooter built in Python with [pygame-ce](https://pyga.me/). The project combines a menu system, level-based progression, AI enemies, projectile combat, pickups, parallax backgrounds, and a full game loop in a single playable prototype.
 
-## About
+## Overview
 
-Shooter Game is a small 2D action project created with Python and pygame-ce. It is designed as a foundation for a side-scrolling shooter, with animated player and enemy characters, a simple game loop, gravity, floor collision, level data, and an expanding collection of visual and audio assets.
+This game is a modern 2D platform-shooter prototype inspired by classic side-scrolling action games. Players move through tiled levels, fight enemies, collect supplies, and reach exits to progress to the next stage. The project is structured around CSV-based level loading, sprite animation, world collision, and a clean start/restart flow.
 
-The current build focuses on the core movement experience. Players can move across the screen, jump, and see the character switch between idle, running, and jumping animations. The project is intentionally modular so that shooting, enemy behavior, level loading, menus, sound effects, and additional gameplay systems can be added in future releases.
+The current codebase in [main.py](main.py) includes a complete playable loop with:
+
+- menu start and exit screens
+- level reset and retry flow
+- multiple CSV-defined levels
+- camera scrolling and parallax background
+- enemy AI and combat behavior
+- bullets, grenades, and explosions
+- pickups for health, ammo, and grenades
+- HUD and health tracking
 
 ## Features
 
-- 800 x 500 game window
-- 60 FPS game loop
-- Player idle, running, and jumping animations
-- Enemy sprite display
-- Gravity and floor collision
-- Keyboard movement and jump controls
-- Separate folders for sprites, UI images, level data, and audio
+- 800 x 640 game window
+- 60 FPS gameplay loop
+- Start menu with clickable Start and Exit buttons
+- Retry screen after player death
+- Multi-level progression using `level1_data.csv`, `level2_data.csv`, and `level3_data.csv`
+- Side-scrolling camera system with world boundary checks
+- Parallax background layers for depth
+- Player movement, jumping, shooting, and grenade actions
+- AI enemies with patrol and vision-based combat
+- Bullet collision, wall collision, and life management
+- Grenade throwing and area-damage explosion effects
+- Health, ammo, and grenade pickups
+- HUD with health bar and inventory display
+- Background music and sound effects
 
 ## Requirements
 
-- Python 3.13 or a compatible Python 3 version
+- Python 3.10+ (project is compatible with modern Python versions)
 - `pygame-ce`
 
 ## Setup
 
-### 1. Create the virtual environment
+### 1. Create a virtual environment
 
 ```powershell
 python -m venv .venv
 ```
 
-### 2. Activate the virtual environment
+### 2. Activate the environment
+
+Windows PowerShell:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-On macOS or Linux:
+macOS/Linux:
 
 ```bash
 source .venv/bin/activate
 ```
 
-### 3. Install the project dependency
+### 3. Install dependencies
 
 ```powershell
 python -m pip install pygame-ce
@@ -53,7 +71,7 @@ The dependency is also declared in `pyproject.toml`.
 
 ## Run the Game
 
-From the project directory, with the virtual environment activated:
+From the project root:
 
 ```powershell
 python main.py
@@ -66,71 +84,112 @@ python main.py
 | `A` | Move left |
 | `D` | Move right |
 | `W` | Jump |
+| `Space` | Shoot |
+| `Q` | Throw grenade |
 | `Esc` | Quit the game |
 
-You can also close the game window to exit.
+Mouse controls are also used in the menu:
+
+- click Start to begin
+- click Exit to close the game
+- click Restart after death to reload the current level
+
+## Gameplay Flow
+
+1. The player starts on the menu screen.
+2. Clicking Start begins the level.
+3. The player moves through the world, avoids enemy fire, and defeats enemies.
+4. Collecting item boxes restores health, ammo, or grenades.
+5. Reaching the exit triggers the next level load.
+6. If the player dies, the restart button reloads the level.
 
 ## Project Structure
 
 ```text
 shooter_game/
-├── audio/                 # Sound effects and music
-├── img/
-│   ├── enemy/             # Enemy animation frames
-│   ├── player/            # Player animation frames
-│   ├── background/        # Background artwork
-│   ├── tile/              # Level tiles
-│   └── icons/             # UI icons and buttons
-├── level1_data.csv        # Level data
-├── level2_data.csv        # Level data
-├── level3_data.csv        # Level data
-├── main.py                # Game entry point
-├── pyproject.toml         # Project metadata and dependencies
-└── README.md
+├── audio/                  # Background music and sound effects
+├── img/                    # Player, enemy, UI, tile, and background assets
+│   ├── background/
+│   ├── enemy/
+│   ├── explosion/
+│   ├── icons/
+│   ├── player/
+│   └── tile/
+├── class_based/            # Supporting class-based game modules
+├── button.py               # Reusable UI button class
+├── level1_data.csv         # Level 1 map data
+├── level2_data.csv         # Level 2 map data
+├── level3_data.csv         # Level 3 map data
+├── main.py                 # Main game entry point and gameplay loop
+├── pyproject.toml          # Package metadata and dependency config
+├── fixed.md                # Changelog and code-fix notes
+├── README.md               # Project documentation
+└── shooter_game.egg-info/  # Packaging metadata
 ```
 
-## Animation Assets
+## Level System
 
-The game loads animation frames from these directories for both `player` and `enemy` characters:
+Levels are defined in CSV files and converted into world data during runtime. Each level includes:
 
-```text
-img/<character>/Idle/<frame>.png
-img/<character>/Run/<frame>.png
-img/<character>/Jump/<frame>.png
-```
+- collision tiles
+- platform layouts
+- player start positions
+- enemy positions
+- item boxes
+- water and decorative objects
+- exit tile
 
-Frame files should use numeric names starting at `0`, such as `0.png`, `1.png`, and `2.png`.
+The world class processes the tile map and rebuilds the level for each new stage.
 
-## Development Status
+## Combat System
 
-This is an early gameplay prototype. Shooting, enemy behavior, level loading, menus, and audio playback are available as project assets or planned expansion areas but are not yet connected to the main game loop.
+The game includes multiple combat mechanics:
 
-## Release Notes
+- player bullets with damage and wall checks
+- enemy shooting based on vision detection
+- grenades with gravity and bouncing physics
+- explosion damage in a radius around the blast
+- health bars for player and enemy sprites
 
-### Version 0.1.0 - Initial Prototype
+## HUD and User Interface
 
-This first release establishes the playable foundation of Shooter Game.
+The HUD displays:
 
-#### Included
+- current health
+- remaining ammo
+- grenade count
+- grenade icons
+- health bar overlay on characters
 
-- A working 800 x 500 Pygame window with a 60 FPS game loop
-- Basic player movement using `A` and `D`
-- Jumping using `W`
-- Gravity and floor collision
-- Idle, running, and jumping player animations
-- Enemy sprite display with animation assets loaded from the project folders
-- Organized folders for artwork, audio, icons, tiles, and level data
-- Clean project setup through `pyproject.toml`
+The UI is rendered directly on the screen while the world continues to scroll behind it.
 
-#### Planned for Future Releases
+## Audio Assets
 
-- Shooting and projectile mechanics
-- Active enemy movement and combat behavior
-- Playable level loading from the CSV files
-- Menus, UI, and game states
-- Sound effects and background music
-- Health, scoring, and player defeat systems
+The project includes:
+
+- background music
+- jump sound effect
+- shot sound effect
+- grenade explosion sound
+
+These are loaded at runtime from the `audio/` directory.
+
+## Development Notes
+
+This project is a complete gameplay prototype rather than a simple placeholder. It includes actual level progression, menu states, enemy AI, combat systems, item collection, collision handling, and audiovisual polish.
+
+The final architecture reflects a mix of procedural gameplay logic and modular game objects, making it a strong foundation for future refactoring into cleaner model-view-controller patterns.
+
+## Credits
+
+- [pygame-ce](https://pyga.me/) — game development library
+- [Grenades 16x16](https://mtk.itch.io/grenades-16x16) — MTK
+- [Pixel Platformer](https://erayzesen.itch.io/pixel-platformer) — Eray Zesen
+- [Team Wars: Platformer Battle](https://secrethideout.itch.io/team-wars-platformer-battle) — Secret Hideout
+- [Bullet Whizzing By](https://soundbible.com/1875-Bullet-Whizzing-By.html) — SoundBible
+- [Fantasy/Wonder Music](https://soundimage.org/fantasywonder/) — Soundimage
+- [YouTube](https://youtube.com/@codingwithruss?si=t2i5H6jP7oqFncE5) — Code Logic (Coding With Russ)
 
 ## License
 
-No license has been specified yet.
+No license has been specified for this project yet.

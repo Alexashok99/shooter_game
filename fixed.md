@@ -263,3 +263,49 @@ This document outlines the menu controls, level progression, reset handling, and
 ## 5. Gameplay Result
 * **Improved player flow:** The project now has a clear start, play, failure, restart, and level-transition lifecycle.
 * **Prepared future MVC work:** Menu state and level lifecycle responsibilities are now identifiable controller concerns, while button and HUD rendering can later move into the View layer.
+
+---
+
+# 09 Changelog & Code Fixes Report
+
+This document captures the final game-state logic and production-ready flow implemented in the current version of the shooter project.
+
+## 1. Final Game Loop Structure
+* **Menu-first startup:** The main loop starts by rendering the start screen and waiting for either the Start or Exit button.
+* **Active play state:** Once `start_game` is set to `True`, the game enters the full gameplay loop with background rendering, world drawing, colliders, AI, combat, and HUD updates.
+* **State separation:** Menu actions and gameplay updates are intentionally separated so buttons are only processed while the game is not running.
+
+## 2. Player Life Cycle and Restart Flow
+* **Death detection:** When the player loses all health, `player.alives` becomes false and movement is halted while the death fade sequence plays.
+* **Restart button flow:** The restart button is shown on the death screen and reloads the current level from its CSV data.
+* **Level-safe reset:** `reset_level()` clears the active enemy, bullet, grenade, explosion, pickup, decorator, water, and exit groups before rebuilding the current stage.
+* **Camera reset:** Restarting or changing levels resets `bg_scroll` to keep the background aligned with the new world state.
+
+## 3. Level Progression and CSV Reload
+* **Maximum level tracking:** `MAX_LEVELS` controls how many CSV levels can be loaded in sequence.
+* **Win condition handling:** If the player reaches the exit, the current world is cleaned and the next level is loaded from the next `levelN_data.csv` file.
+* **Fresh world creation:** Each level rebuilds the world from a newly initialized grid and reprocesses the map data through `World.process_data()`.
+* **Persistent level data:** The player, enemies, item boxes, decorations, water, exits, and collision tiles are all reconstructed from the newly selected level layout.
+
+## 4. Camera, Background, and World Rendering
+* **Parallax scene:** The background is drawn using layered sky, mountain, pine, and tree images with different scrolling speeds.
+* **Camera scrolling:** `screen_scroll` is calculated during player motion and used to shift the visible world while keeping the HUD fixed to the screen.
+* **Level boundary checks:** Camera movement is limited by the loaded world length so the player cannot scroll beyond the playable map.
+* **World synchronization:** Tiles, exits, water, decorators, bullets, grenades, item boxes, and explosions all respect the current scroll offset.
+
+## 5. Combat, AI, and Inventory Logic
+* **Player controls:** Movement, jump, shooting, and grenade usage remain active through keyboard input while the player is alive.
+* **Enemy AI:** Enemies continue to patrol, react to the player, and fire when the player enters their detection area.
+* **Combat system:** Bullets and grenades deal damage to living enemies and the player, with explosion damage applied to nearby units.
+* **Inventory state:** Ammo and grenade counts are tracked on the player and visualized in the HUD using text and icon rendering.
+
+## 6. Audio, Visual Effects, and UI
+* **Music and sound effects:** Background music and jump, shot, and grenade sounds are initialized and triggered during gameplay.
+* **Fade transitions:** Intro and death fades improve the flow between menu, play, and retry sequences.
+* **HUD display:** Health, ammo, grenade count, and grenade icons are drawn directly to the screen without moving with the world.
+* **Button UI:** Start, exit, and restart controls are implemented as image-based clickable buttons using the shared `Button` class.
+
+## 7. Final Project State
+* **Playable loop complete:** The project now includes a full start menu, death/restart flow, multi-level progression, AI combat, HUD overlays, and scrollable world rendering.
+* **Final logic stabilization:** The architecture is now consistent with the game’s procedural structure: menu state, level lifecycle, combat logic, and rendering are all coordinated through the main loop.
+* **Production-ready prototype:** The current project is a polished single-file game implementation with clear state transitions and a complete shooter gameplay loop.

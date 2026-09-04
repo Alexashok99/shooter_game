@@ -1,7 +1,7 @@
 
 
 import pygame
-from settings import *
+from class_based.settings import *
 
 class HealthBar:
     def __init__(self, x: int, y: int, health: int, max_health: int) -> None:

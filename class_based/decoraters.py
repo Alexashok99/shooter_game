@@ -3,7 +3,7 @@
 from typing import Any
 
 import pygame
-from settings import *
+from class_based.settings import *
 
 class Decorator(pygame.sprite.Sprite):
     def __init__(

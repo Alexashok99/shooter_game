@@ -4,9 +4,9 @@ from typing import Any
 
 import pygame
 
-from grenade import Grenade
-from settings import *
-from worlds import World
+from class_based.grenade import Grenade
+from class_based.settings import *
+from class_based.worlds import World
 
 pygame.init()
 

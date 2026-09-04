@@ -1,5 +1,6 @@
 import sys
 import pygame
+from pygame import mixer
 import os
 import random
 import csv
@@ -29,6 +30,7 @@ screen_scroll: int = 0
 bg_scroll: int = 0
 level: int = 1
 start_game: bool = False
+start_intro: bool = False
 
 # Define color (Strict Tuple Hinting)
 BG: tuple[int, int, int] = (144, 201, 120)
@@ -36,6 +38,7 @@ RED: tuple[int, int, int] = (255, 0, 0)
 GREEN: tuple[int, int, int] = (0, 255, 0)
 WHITE: tuple[int, int, int] = (255, 255, 255)
 BLACK: tuple[int, int, int] = (0, 0, 0)
+PINK: tuple[int, int, int] = (235, 65, 54)
 # Initialize Pygame
 pygame.init()
 # pygame setup
@@ -48,6 +51,18 @@ moving_right: bool = False
 shoot: bool = False
 grenade: bool = False
 grenade_thrown: bool = False
+
+# Load Music and sound
+pygame.mixer.music.load("audio/music2.mp3")
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(-1, 0.0, 5000)
+jump_fx = pygame.mixer.Sound("audio/jump.wav")
+jump_fx.set_volume(0.5)
+shoot_fx = pygame.mixer.Sound("audio/shot.wav")
+shoot_fx.set_volume(0.5)
+grenade_fx = pygame.mixer.Sound("audio/grenade.wav")
+grenade_fx.set_volume(0.5)
+
 # load images
 # Button images
 start_img: pygame.surface.Surface = pygame.image.load(
@@ -56,9 +71,7 @@ start_img: pygame.surface.Surface = pygame.image.load(
 restart_img: pygame.surface.Surface = pygame.image.load(
     "img/restart_btn.png"
 ).convert_alpha()
-exit_img: pygame.surface.Surface = pygame.image.load(
-    "img/exit_btn.png"
-).convert_alpha()
+exit_img: pygame.surface.Surface = pygame.image.load("img/exit_btn.png").convert_alpha()
 
 # Load Background Images
 pine1_img: pygame.surface.Surface = pygame.image.load(
@@ -134,6 +147,7 @@ def draw_bg() -> None:  # Added return type hint
             pine2_img,
             (x * width - bg_scroll * 0.8, WIN_HEIGHT - pine2_img.get_height()),
         )
+
 
 # function to reset level
 def reset_level():
@@ -262,7 +276,7 @@ class Soldier(pygame.sprite.Sprite):
             ):
                 dx = 0
                 # if the ai has hit a wall then make it turn around
-                if self.char_type == 'enemy':
+                if self.char_type == "enemy":
                     self.direction *= -1
                     self.move_counter = 0
             # check collision in y direction
@@ -288,17 +302,14 @@ class Soldier(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, exit_group, False):
             level_complete = True
 
-
         # check for fallen off the map
         if self.rect.bottom > WIN_HEIGHT:
             self.health = 0
-
 
         # Check if going off the edges of the screen
         if self.char_type == "player":
             if self.rect.left + dx < 0 or self.rect.right + dx > WIN_WIDTH:
                 dx = 0
-
 
         # update rect position
         self.rect.x += int(dx)
@@ -366,6 +377,7 @@ class Soldier(pygame.sprite.Sprite):
             bullet_group.add(bullet)
             # reduse the ammo
             self.ammo -= 1
+            shoot_fx.play()
 
     def update_animation(self) -> None:
         ANIMATION_COOLDOWN: float = 100
@@ -448,6 +460,7 @@ class Grenade(pygame.sprite.Sprite):
         self.timer -= 1
         if self.timer <= 0:
             self.kill()
+            grenade_fx.play()
             explosion: Explosion = Explosion(self.rect.centerx, self.rect.centery, 1.5)
             explosion_group.add(explosion)
 
@@ -718,10 +731,56 @@ class ItemBox(pygame.sprite.Sprite):
             self.kill()
 
 
+class ScreenFade:
+    def __init__(self, direction, color, speed):
+        self.direction = direction
+        self.color = color
+        self.speed = speed
+        self.fade_counter: int = 0
+
+    def fade(self):
+        fade_complete = False
+        self.fade_counter += self.speed
+        if self.direction == 1:  # whole screen fade down
+            pygame.draw.rect(
+                screen,
+                self.color,
+                (0 - self.fade_counter, 0, WIN_WIDTH // 2, WIN_HEIGHT),
+            )
+            pygame.draw.rect(
+                screen,
+                self.color,
+                (WIN_WIDTH // 2 + self.fade_counter, 0, WIN_WIDTH, WIN_HEIGHT),
+            )
+            pygame.draw.rect(
+                screen,
+                self.color,
+                (0, 0 - self.fade_counter, WIN_WIDTH, WIN_HEIGHT // 2),
+            )
+            pygame.draw.rect(
+                screen,
+                self.color,
+                (0, WIN_HEIGHT // 2 + self.fade_counter, WIN_WIDTH, WIN_HEIGHT),
+            )
+        if self.direction == 2:  # Vertical screen fade down
+            pygame.draw.rect(
+                screen, self.color, (0, 0, WIN_WIDTH, 0 + self.fade_counter)
+            )
+        if self.fade_counter >= WIN_WIDTH:
+            fade_complete = True
+
+        return fade_complete
+
+
+death_fade = ScreenFade(2, PINK, 4)
+intro_fade = ScreenFade(1, BLACK, 4)
+
 # Create Button
-start_button = button.Button(WIN_WIDTH//2 - 130, WIN_HEIGHT // 2 - 150, start_img, 1)
-exit_button = button.Button(WIN_WIDTH//2 - 110, WIN_HEIGHT // 2 + 50, exit_img, 1)
-restart_button = button.Button(WIN_WIDTH//2 - 100, WIN_HEIGHT // 2 - 50, restart_img, 2)
+start_button = button.Button(WIN_WIDTH // 2 - 130, WIN_HEIGHT // 2 - 150, start_img, 1)
+exit_button = button.Button(WIN_WIDTH // 2 - 110, WIN_HEIGHT // 2 + 50, exit_img, 1)
+restart_button = button.Button(
+    WIN_WIDTH // 2 - 100, WIN_HEIGHT // 2 - 50, restart_img, 2
+)
 
 # create sprite groups
 enemy_group: pygame.sprite.Group = pygame.sprite.Group()
@@ -760,6 +819,7 @@ while running:
         # add button
         if start_button.draw(screen):
             start_game = True
+            start_intro = True
         if exit_button.draw(screen):
             running = False
     else:
@@ -772,9 +832,15 @@ while running:
         draw_text(
             f"Health: {player.health}", pygame.font.SysFont("consolas", 20), RED, 10, 10
         )
-        draw_text(f"Ammo: {player.ammo}", pygame.font.SysFont("consolas", 20), RED, 10, 40)
         draw_text(
-            f"Grenade: {player.grenade}", pygame.font.SysFont("consolas", 20), RED, 10, 70
+            f"Ammo: {player.ammo}", pygame.font.SysFont("consolas", 20), RED, 10, 40
+        )
+        draw_text(
+            f"Grenade: {player.grenade}",
+            pygame.font.SysFont("consolas", 20),
+            RED,
+            10,
+            70,
         )
         for x in range(player.grenade):
             screen.blit(grenade_img, (130 + (x * 15), 70))
@@ -802,6 +868,12 @@ while running:
         decorator_group.draw(screen)
         exit_group.draw(screen)
 
+        # Show intro
+        if start_intro == True:
+            if intro_fade.fade():
+                start_intro = False
+                intro_fade.fade_counter = 0
+
         # update player actions
         if player.alives:
             if shoot:
@@ -828,11 +900,12 @@ while running:
             bg_scroll -= screen_scroll
             # check if player has complete leve
             if level_complete:
+                start_intro = True
                 level += 1
                 bg_scroll = 0
                 world_data = reset_level()
                 if level <= MAX_LEVELS:
-                # Load in level data and create world
+                    # Load in level data and create world
                     with open(f"level{level}_data.csv", newline="") as csvfile:
                         reader: Any = csv.reader(csvfile, delimiter=",")
                         for x, row in enumerate(reader):
@@ -842,21 +915,23 @@ while running:
                     world = World()
                     player, health_bar = world.process_data(world_data)
 
-
         else:
             screen_scroll = 0
-            if restart_button.draw(screen):
-                bg_scroll = 0
-                world_data = reset_level()
-                # load in level data and create world
-                with open(f"level{level}_data.csv", newline="") as csvfile:
-                    reader: Any = csv.reader(csvfile, delimiter=",")
-                    for x, row in enumerate(reader):
-                        for y, tile in enumerate(row):
-                            if 0 <= x < ROWS and 0 <= y < COLS:
-                                world_data[x][y] = int(tile)
-                world = World()
-                player, health_bar = world.process_data(world_data)
+            if death_fade.fade():
+                if restart_button.draw(screen):
+                    death_fade.fade_counter = 0
+                    start_intro = True
+                    bg_scroll = 0
+                    world_data = reset_level()
+                    # load in level data and create world
+                    with open(f"level{level}_data.csv", newline="") as csvfile:
+                        reader: Any = csv.reader(csvfile, delimiter=",")
+                        for x, row in enumerate(reader):
+                            for y, tile in enumerate(row):
+                                if 0 <= x < ROWS and 0 <= y < COLS:
+                                    world_data[x][y] = int(tile)
+                    world = World()
+                    player, health_bar = world.process_data(world_data)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -873,6 +948,7 @@ while running:
                 grenade = True
             if event.key == pygame.K_w and player.alives:
                 player.jump = True
+                jump_fx.play()
             if event.key == pygame.K_ESCAPE:
                 running = False
 

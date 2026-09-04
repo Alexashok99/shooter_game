@@ -1,10 +1,10 @@
 import pygame
 
-from health_bar import HealthBar
-from item_box import ItemBox
-from settings import *
-from soldiers import Soldier
-from decoraters import Decorator, Water, Exit
+from class_based.health_bar import HealthBar
+from class_based.item_box import ItemBox
+from class_based.settings import *
+from class_based.soldiers import Soldier
+from class_based.decoraters import Decorator, Water, Exit
 
 
 class World:

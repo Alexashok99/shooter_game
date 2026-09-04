@@ -2,7 +2,7 @@ from typing import Any
 
 import pygame
 
-from settings import *
+from class_based.settings import *
 
 
 class Grenade(pygame.sprite.Sprite):

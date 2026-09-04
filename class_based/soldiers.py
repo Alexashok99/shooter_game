@@ -2,8 +2,8 @@ import os, random
 import pygame
 from typing import Any
 
-from settings import *
-from bullet import Bullet
+from class_based.settings import *
+from class_based.bullet import Bullet
 
 
 class Soldier(pygame.sprite.Sprite):

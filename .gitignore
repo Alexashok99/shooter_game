@@ -181,3 +181,5 @@ temp/
 tmp/
 *.tmp
 *.temp
+
+level_editor_tut.py
