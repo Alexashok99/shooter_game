@@ -192,4 +192,4 @@ The final architecture reflects a mix of procedural gameplay logic and modular g
 
 ## License
 
-No license has been specified for this project yet.
+MIT
